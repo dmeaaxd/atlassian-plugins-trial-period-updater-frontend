@@ -1,0 +1,1 @@
+# atlassian-plugins-trial-period-updater-frontend

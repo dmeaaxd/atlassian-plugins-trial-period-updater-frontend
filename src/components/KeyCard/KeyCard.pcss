@@ -1,0 +1,24 @@
+.tk--KeyCard {
+  border-radius: 8px;
+  /* overflow: hidden; */
+  &-Image {
+    width: 175px;
+    height: 175px;
+    border-radius: 4px;
+    flex: none;
+
+    &_noImage {
+      background-image: url(./patern.png);
+      background-size: 16px;
+      background-repeat: repeat;
+    }
+  }
+  &-Content {
+    flex: 1;
+    width: 0px;
+  }
+  &-Spoiler {
+    word-wrap: break-word;
+    overflow: hidden;
+  }
+}

@@ -6,6 +6,7 @@ type Plugin = {
   label: string;
   content: string;
   imageUrl?: string;
+  type: string;
 };
 
 type PluginResponse = {
@@ -36,6 +37,7 @@ export const loadPluginsAction = action(async (ctx) => {
         label: plugin.name,
         content: plugin.api_key,
         imageUrl: toImageUrl(plugin.image_hard_path),
+        type: plugin.type,
       }))
     );
   } finally {
@@ -51,11 +53,20 @@ export const setSearchAtom = action(async (ctx, value: string | null) => {
   searchDebouncedAtom(ctx, value || '');
 }).pipe(withConcurrency());
 
+export const typeFilterAtom = atom<string>('ALL');
+
+export const setTypeFilterAction = action((ctx, value: string) => {
+  typeFilterAtom(ctx, value);
+});
+
 export const listAtom = atom((ctx) => {
   const search = ctx.spy(searchDebouncedAtom);
+  const typeFilter = ctx.spy(typeFilterAtom);
 
   const data = ctx.spy(dataAtom);
-  return data.filter((item) =>
-    item.label.toLocaleLowerCase().includes(search.toLocaleLowerCase())
+  return data.filter(
+    (item) =>
+      item.label.toLocaleLowerCase().includes(search.toLocaleLowerCase()) &&
+      (typeFilter === 'ALL' || item.type.toUpperCase() === typeFilter)
   );
 });

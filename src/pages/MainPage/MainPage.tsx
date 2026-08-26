@@ -5,6 +5,7 @@ import { cnMixSpace } from '@consta/uikit/MixSpace';
 
 import { ListCard } from '##/components/ListCard';
 import { Search } from '##/components/Search';
+import { TypeFilter } from '##/components/TypeFilter';
 import { ViewToggle } from '##/components/ViewToggle';
 import { cn } from '##/utils';
 
@@ -20,6 +21,7 @@ export const MainPage = () => {
         ])}
       >
         <Search />
+        <TypeFilter />
         <ViewToggle />
       </div>
 

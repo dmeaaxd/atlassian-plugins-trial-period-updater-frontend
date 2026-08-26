@@ -6,6 +6,8 @@ type Plugin = {
   label: string;
   content: string;
   imageUrl?: string;
+  type: string;
+  updated_at: string | null;
 };
 
 type PluginResponse = {
@@ -13,22 +15,32 @@ type PluginResponse = {
   type: string;
   image_hard_path: string;
   api_key: string;
+  updated_at: string | null;
 };
 
 const dataAtom = atom<Plugin[]>([]);
 export const loadingAtom = atom(false);
 
+// Адрес бека из env (запекается при сборке). Пусто — запросы к своему origin
+// (dev-прокси), иначе — напрямую к беку.
+const backendUrl = import.meta.env.VITE_BACKEND_URL ?? '';
+
+const toImageUrl = (path: string): string =>
+  /^https?:\/\//.test(path) ? path : `${backendUrl}${path}`;
+
 export const loadPluginsAction = action(async (ctx) => {
   loadingAtom(ctx, true);
   try {
-    const response = await ctx.schedule(() => fetch('/keys'));
+    const response = await ctx.schedule(() => fetch(`${backendUrl}/keys`));
     const plugins: PluginResponse[] = await response.json();
     dataAtom(
       ctx,
       plugins.map((plugin) => ({
         label: plugin.name,
         content: plugin.api_key,
-        imageUrl: plugin.image_hard_path,
+        imageUrl: toImageUrl(plugin.image_hard_path),
+        type: plugin.type,
+        updated_at: plugin.updated_at,
       }))
     );
   } finally {
@@ -44,11 +56,20 @@ export const setSearchAtom = action(async (ctx, value: string | null) => {
   searchDebouncedAtom(ctx, value || '');
 }).pipe(withConcurrency());
 
+export const typeFilterAtom = atom<string>('ALL');
+
+export const setTypeFilterAction = action((ctx, value: string) => {
+  typeFilterAtom(ctx, value);
+});
+
 export const listAtom = atom((ctx) => {
   const search = ctx.spy(searchDebouncedAtom);
+  const typeFilter = ctx.spy(typeFilterAtom);
 
   const data = ctx.spy(dataAtom);
-  return data.filter((item) =>
-    item.label.toLocaleLowerCase().includes(search.toLocaleLowerCase())
+  return data.filter(
+    (item) =>
+      item.label.toLocaleLowerCase().includes(search.toLocaleLowerCase()) &&
+      (typeFilter === 'ALL' || item.type.toUpperCase() === typeFilter)
   );
 });

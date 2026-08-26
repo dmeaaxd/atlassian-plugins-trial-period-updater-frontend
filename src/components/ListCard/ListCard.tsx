@@ -9,9 +9,10 @@ import { useEffect } from 'react';
 import { KeyCard } from '##/components/KeyCard';
 import { listAtom, loadingAtom, loadPluginsAction } from '##/models/list';
 import { viewAtom } from '##/models/view';
-import { cn } from '##/utils';
+import { cn, fmtDate } from '##/utils';
 
 const cnListCard = cn('ListCard');
+
 export const ListCard = () => {
   const [list] = useAtom(listAtom);
   const [loading] = useAtom(loadingAtom);
@@ -37,6 +38,7 @@ export const ListCard = () => {
               label={item.label}
               content={item.content}
               imageUrl={item.imageUrl}
+              updatedAt={item.updated_at}
             />
           </GridItem>
         ))}
@@ -57,13 +59,22 @@ export const ListCard = () => {
             {item.label}
           </Text>
           <Text
-            className={cnListCard('Text', [cnMixSpace({ mB: 'l' })])}
+            className={cnListCard('Text', [cnMixSpace({ mB: 'xs' })])}
             size="s"
             lineHeight="m"
             view="secondary"
           >
             {item.content}
           </Text>
+          {item.updated_at && (
+            <Text
+              className={cnListCard('Text', [cnMixSpace({ mB: 'l' })])}
+              size="xs"
+              view="secondary"
+            >
+              Обновлено: {fmtDate(item.updated_at)}
+            </Text>
+          )}
         </div>
       ))}
     </div>

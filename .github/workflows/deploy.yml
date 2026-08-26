@@ -1,0 +1,52 @@
+name: Deploy frontend
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+concurrency:
+  group: deploy-frontend
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Deploy to server
+        env:
+          SSH_KEY: ${{ secrets.SERVER_SSH_KEY }}
+        run: |
+          set -euo pipefail
+          install -m 700 -d "$HOME/.ssh"
+          printf '%s\n' "$SSH_KEY" > "$HOME/.ssh/deploy_key"
+          chmod 600 "$HOME/.ssh/deploy_key"
+          SSH="ssh -i $HOME/.ssh/deploy_key -o StrictHostKeyChecking=accept-new -o ConnectTimeout=20"
+          DEST="deploy@72.56.97.157"
+          APP_DIR=/opt/licenses/frontend
+
+          # Server-only файлы (.env, .htpasswd, docker-compose.override.yml,
+          # nginx-server.conf) и database.db НЕ трогаем — они живут только на сервере.
+          rsync -az --delete \
+            --exclude '.git/' \
+            --exclude 'node_modules/' \
+            --exclude 'dist/' \
+            --exclude '.venv/' \
+            --exclude '.env' \
+            --exclude '.htpasswd' \
+            --exclude 'docker-compose.override.yml' \
+            --exclude 'nginx-server.conf' \
+            --exclude 'database.db' \
+            --exclude '.idea/' \
+            --exclude '.mimocode/' \
+            --exclude '.DS_Store' \
+            -e "$SSH" \
+            ./ "$DEST:$APP_DIR/"
+
+          $SSH "$DEST" "cd $APP_DIR && docker compose up -d --build"
+
+          code=$($SSH "$DEST" "curl -s -o /dev/null -w '%{http_code}' http://127.0.0.1:8080/" || echo DOWN)
+          echo "http://127.0.0.1:8080/ -> $code (ожидается 401 — basic auth активен)"
+          [ "$code" != "DOWN" ] || { echo "Сайт не отвечает"; exit 1; }

@@ -8,7 +8,7 @@ import { Spoiler } from '@consta/uikit/Spoiler';
 import { Text } from '@consta/uikit/Text';
 import { forwardRef } from 'react';
 
-import { cn } from '##/utils';
+import { cn, fmtDate } from '##/utils';
 
 import { KeyCardButton } from './KeyCardButton';
 
@@ -19,12 +19,13 @@ type KeyCardProps = PropsWithHTMLAttributesAndRef<
     label: string;
     content: string;
     imageUrl?: string;
+    updatedAt?: string | null;
   },
   HTMLDivElement
 >;
 
 export const KeyCard = forwardRef<HTMLDivElement, KeyCardProps>(
-  ({ label, content, imageUrl }, ref) => {
+  ({ label, content, imageUrl, updatedAt }, ref) => {
     return (
       <div
         className={cnKeyCard(null, [
@@ -54,7 +55,12 @@ export const KeyCard = forwardRef<HTMLDivElement, KeyCardProps>(
           >
             {content}
           </Spoiler>
-          <div className={cnMixFlex({ justify: 'flex-end' })}>
+          <div className={cnMixFlex({ justify: 'space-between', align: 'center' })}>
+            {updatedAt && (
+              <Text size="s" view="secondary">
+                Обновлено: {fmtDate(updatedAt)}
+              </Text>
+            )}
             <KeyCardButton copyText={content} />
           </div>
         </div>

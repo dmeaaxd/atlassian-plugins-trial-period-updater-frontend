@@ -7,6 +7,7 @@ type Plugin = {
   content: string;
   imageUrl?: string;
   type: string;
+  updated_at: string | null;
 };
 
 type PluginResponse = {
@@ -14,6 +15,7 @@ type PluginResponse = {
   type: string;
   image_hard_path: string;
   api_key: string;
+  updated_at: string | null;
 };
 
 const dataAtom = atom<Plugin[]>([]);
@@ -38,6 +40,7 @@ export const loadPluginsAction = action(async (ctx) => {
         content: plugin.api_key,
         imageUrl: toImageUrl(plugin.image_hard_path),
         type: plugin.type,
+        updated_at: plugin.updated_at,
       }))
     );
   } finally {

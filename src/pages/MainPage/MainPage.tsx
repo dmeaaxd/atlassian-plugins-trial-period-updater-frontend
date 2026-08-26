@@ -20,7 +20,7 @@ export const MainPage = () => {
           cnMixFlex({ gap: 's' }),
         ])}
       >
-        <Search />
+        <Search className={cnMainPage('Search')} />
         <TypeFilter />
         <ViewToggle />
       </div>

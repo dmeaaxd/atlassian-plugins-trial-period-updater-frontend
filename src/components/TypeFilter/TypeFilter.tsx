@@ -1,4 +1,4 @@
-import { Tabs } from '@consta/uikit/Tabs';
+import { ChoiceGroup } from '@consta/uikit/ChoiceGroup';
 import { useAction, useAtom } from '@reatom/npm-react';
 
 import { setTypeFilterAction, typeFilterAtom } from '##/models/list';
@@ -13,14 +13,18 @@ export const TypeFilter = () => {
   const [typeFilter] = useAtom(typeFilterAtom);
   const setTypeFilter = useAction(setTypeFilterAction);
 
-  const current = typeItems.find((item) => item.value === typeFilter) ?? typeItems[0];
+  const current = typeItems.find((item) => item.value === typeFilter) ?? null;
 
   return (
-    <Tabs
+    <ChoiceGroup
+      name="type-filter"
       items={typeItems}
       value={current}
-      onChange={(item) => setTypeFilter(String(item.value))}
-      size="s"
+      onChange={(item) => setTypeFilter(item.value)}
+      getItemLabel={(item) => item.label}
+      size="m"
+      view="primary"
+      form="default"
     />
   );
 };

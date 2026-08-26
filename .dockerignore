@@ -1,0 +1,10 @@
+.git
+.idea
+.mimocode
+node_modules
+dist
+.env
+Dockerfile
+.dockerignore
+*.md
+*.local
